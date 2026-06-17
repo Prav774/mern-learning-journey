@@ -15,8 +15,6 @@ The purpose of this repository is to:
 - Track progress consistently through GitHub
 - Create a structured knowledge base for future reference
 
----
-
 ## Learning Goals
 
 By the end of this journey, I aim to:
