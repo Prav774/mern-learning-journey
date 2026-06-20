@@ -1,0 +1,838 @@
+# DAY 2 — MongoDB Core Concepts
+
+## MongoDB Architecture & Data Model
+
+### Learning Objectives
+
+By the end of this module, you should be able to:
+
+* Understand MongoDB's document-based architecture
+* Differentiate between JSON and BSON
+* Explain the purpose of ObjectId
+* Design efficient MongoDB schemas
+* Model relationships in MongoDB
+* Understand embedding vs referencing
+* Work with Mongoose Schema and Model
+* Implement schema validation
+* Connect to MongoDB Atlas and local MongoDB
+
+---
+
+# 1. Document, Collection, Database
+
+MongoDB stores data in a hierarchical structure.
+
+```text
+Database
+│
+├── Collection
+│   ├── Document
+│   ├── Document
+│   └── Document
+│
+└── Collection
+    ├── Document
+    └── Document
+```
+
+## Database
+
+A database contains multiple collections.
+
+Example:
+
+```javascript
+BlogDB
+```
+
+---
+
+## Collection
+
+A collection contains multiple documents.
+
+Examples:
+
+```javascript
+users
+posts
+comments
+```
+
+Equivalent to a table in SQL databases.
+
+---
+
+## Document
+
+A document is the basic unit of data in MongoDB.
+
+Example:
+
+```javascript
+{
+  "_id": "123",
+  "name": "Praveen",
+  "age": 20
+}
+```
+
+Equivalent to a row in SQL databases.
+
+---
+
+## SQL vs MongoDB
+
+| SQL      | MongoDB    |
+| -------- | ---------- |
+| Database | Database   |
+| Table    | Collection |
+| Row      | Document   |
+| Column   | Field      |
+
+---
+
+# 2. BSON vs JSON
+
+## JSON
+
+JavaScript Object Notation is a lightweight text format used for data exchange.
+
+Example:
+
+```json
+{
+  "name": "Praveen",
+  "age": 20
+}
+```
+
+---
+
+## BSON
+
+BSON stands for:
+
+```text
+Binary JSON
+```
+
+MongoDB internally stores data in BSON format.
+
+Example BSON-specific types:
+
+```javascript
+ObjectId()
+Date()
+Binary()
+Decimal128()
+```
+
+---
+
+## Why MongoDB Uses BSON
+
+* Faster processing
+* Efficient storage
+* Supports additional data types
+* Better indexing performance
+
+---
+
+## Interview Answer
+
+JSON is a text-based format used for data exchange, while BSON is MongoDB's binary representation of JSON that supports additional data types and improves storage and query performance.
+
+---
+
+# 3. _id Field and ObjectId
+
+Every MongoDB document contains a unique field called:
+
+```javascript
+_id
+```
+
+Example:
+
+```javascript
+{
+  "_id": ObjectId("687e31eaa63b1b53f4c2b7a1"),
+  "name": "Praveen"
+}
+```
+
+---
+
+## Purpose
+
+* Uniquely identifies documents
+* Acts as MongoDB's primary key
+
+---
+
+## ObjectId Structure
+
+ObjectId consists of 12 bytes.
+
+```text
+4 Bytes → Timestamp
+5 Bytes → Machine + Process Identifier
+3 Bytes → Counter
+```
+
+Example:
+
+```javascript
+687e31eaa63b1b53f4c2b7a1
+```
+
+---
+
+## Benefits
+
+* Automatically generated
+* Globally unique
+* Contains creation timestamp
+
+---
+
+## Interview Answer
+
+ObjectId is MongoDB's default unique identifier made up of 12 bytes containing timestamp information, machine/process identifiers, and an incrementing counter.
+
+---
+
+# 4. MongoDB Data Types
+
+## String
+
+```javascript
+{
+  "name": "Praveen"
+}
+```
+
+---
+
+## Number
+
+```javascript
+{
+  "age": 20
+}
+```
+
+---
+
+## Boolean
+
+```javascript
+{
+  "isActive": true
+}
+```
+
+---
+
+## Array
+
+```javascript
+{
+  "skills": ["Java", "MongoDB", "Node.js"]
+}
+```
+
+---
+
+## Object
+
+```javascript
+{
+  "address": {
+    "city": "Coimbatore",
+    "state": "Tamil Nadu"
+  }
+}
+```
+
+---
+
+## Date
+
+```javascript
+{
+  "createdAt": new Date()
+}
+```
+
+---
+
+## ObjectId
+
+```javascript
+{
+  "userId": ObjectId("687e31eaa63b1b53f4c2b7a1")
+}
+```
+
+---
+
+## Null
+
+```javascript
+{
+  "middleName": null
+}
+```
+
+---
+
+# 5. Schema Design Philosophy
+
+MongoDB uses a flexible schema approach.
+
+Example:
+
+```javascript
+{
+  "name": "Praveen"
+}
+```
+
+```javascript
+{
+  "name": "John",
+  "age": 20
+}
+```
+
+Both documents can exist in the same collection.
+
+---
+
+## Advantages
+
+* Rapid development
+* Easy schema evolution
+* Flexible application design
+
+---
+
+## Production Practice
+
+Most applications enforce structure using Mongoose Schemas to maintain consistency.
+
+---
+
+# 6. Embedded Documents vs References
+
+One of the most important MongoDB design decisions.
+
+---
+
+## Embedded Documents
+
+Store related data inside the same document.
+
+Example:
+
+```javascript
+{
+  "_id": 1,
+  "title": "MongoDB Guide",
+  "comments": [
+    {
+      "user": "Praveen",
+      "text": "Great article"
+    }
+  ]
+}
+```
+
+### Advantages
+
+* Faster reads
+* Single query retrieval
+* No joins required
+
+### Disadvantages
+
+* Larger document size
+* Potential data duplication
+
+---
+
+## References
+
+Store related document IDs.
+
+Users Collection:
+
+```javascript
+{
+  "_id": ObjectId("101"),
+  "name": "Praveen"
+}
+```
+
+Posts Collection:
+
+```javascript
+{
+  "_id": ObjectId("201"),
+  "title": "MongoDB Guide",
+  "author": ObjectId("101")
+}
+```
+
+### Advantages
+
+* Better scalability
+* Avoids duplication
+* Easier updates
+
+### Disadvantages
+
+* Additional queries
+* More complex retrieval
+
+---
+
+## When to Embed
+
+Use embedding when:
+
+* Data is small
+* Data is frequently accessed together
+* Relationship is tightly coupled
+
+Examples:
+
+* User Address
+* User Preferences
+* Product Specifications
+
+---
+
+## When to Reference
+
+Use references when:
+
+* Data grows large
+* Many-to-many relationships exist
+* Independent updates are required
+
+Examples:
+
+* Users and Posts
+* Students and Courses
+* Orders and Products
+
+---
+
+# 7. Relationship Modeling
+
+## One-to-One
+
+User and Profile
+
+```javascript
+{
+  "_id": 1,
+  "name": "Praveen",
+  "profile": {
+    "bio": "Developer"
+  }
+}
+```
+
+Usually embedded.
+
+---
+
+## One-to-Many
+
+User and Posts
+
+```javascript
+{
+  "_id": 1,
+  "name": "Praveen"
+}
+```
+
+```javascript
+{
+  "title": "Post 1",
+  "author": 1
+}
+```
+
+Usually references.
+
+---
+
+## Many-to-Many
+
+Student and Courses
+
+```javascript
+{
+  "name": "Praveen",
+  "courses": [101, 102]
+}
+```
+
+```javascript
+{
+  "title": "MongoDB",
+  "students": [1, 2]
+}
+```
+
+Uses references.
+
+---
+
+# 8. Mongoose ODM
+
+ODM stands for:
+
+```text
+Object Data Modeling
+```
+
+Mongoose is a Node.js library that provides schema-based interaction with MongoDB.
+
+---
+
+## Benefits
+
+* Schema enforcement
+* Validation
+* Middleware support
+* Cleaner code
+* Population support
+
+---
+
+## Interview Answer
+
+Mongoose is an ODM library for MongoDB that provides schema-based modeling, validation, middleware, and simplified database interactions.
+
+---
+
+# 9. Mongoose Schema
+
+A Schema defines document structure.
+
+Example:
+
+```javascript
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  email: String
+});
+```
+
+Responsibilities:
+
+* Define fields
+* Validation rules
+* Default values
+* Constraints
+
+---
+
+# 10. Mongoose Model
+
+A Model is created from a Schema.
+
+```javascript
+const User = mongoose.model("User", userSchema);
+```
+
+Used for CRUD operations.
+
+```javascript
+User.create()
+User.find()
+User.findById()
+User.updateOne()
+User.deleteOne()
+```
+
+---
+
+## Schema vs Model
+
+| Schema            | Model              |
+| ----------------- | ------------------ |
+| Blueprint         | Database Interface |
+| Defines Structure | Performs CRUD      |
+| No DB Operations  | DB Operations      |
+
+---
+
+# 11. Schema Validation
+
+## Required
+
+```javascript
+name: {
+  type: String,
+  required: true
+}
+```
+
+## Default
+
+```javascript
+status: {
+  type: String,
+  default: "Pending"
+}
+```
+
+## Min
+
+```javascript
+age: {
+  type: Number,
+  min: 18
+}
+```
+
+## Max
+
+```javascript
+age: {
+  type: Number,
+  max: 60
+}
+```
+
+## Enum
+
+```javascript
+role: {
+  type: String,
+  enum: ["Admin", "User"]
+}
+```
+
+---
+
+## Complete Example
+
+```javascript
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+
+  age: {
+    type: Number,
+    min: 18,
+    max: 60
+  },
+
+  role: {
+    type: String,
+    enum: ["Admin", "User"]
+  },
+
+  status: {
+    type: String,
+    default: "Active"
+  }
+});
+```
+
+---
+
+# 12. MongoDB Atlas vs Local MongoDB
+
+## Local MongoDB
+
+Runs on your machine.
+
+Connection:
+
+```javascript
+mongodb://localhost:27017/blogdb
+```
+
+Tools:
+
+* MongoDB Community Server
+* MongoDB Compass
+* mongosh
+
+---
+
+## MongoDB Atlas
+
+Cloud-hosted MongoDB service.
+
+Connection:
+
+```javascript
+mongodb+srv://username:password@cluster.mongodb.net/blogdb
+```
+
+Advantages:
+
+* Cloud hosting
+* Automatic backups
+* Monitoring tools
+* Easy scalability
+* Built-in replica sets
+
+---
+
+## Interview Answer
+
+Local MongoDB runs on a developer's machine, while MongoDB Atlas is MongoDB's managed cloud platform providing hosting, monitoring, backups, and scalability.
+
+---
+
+# 13. Replica Sets (Concept)
+
+A Replica Set is a group of MongoDB servers maintaining identical data.
+
+```text
+Primary
+│
+├── Secondary
+└── Secondary
+```
+
+Purpose:
+
+* High availability
+* Data redundancy
+* Automatic failover
+
+---
+
+## Interview Answer
+
+A Replica Set is a group of MongoDB servers that maintain the same data to provide fault tolerance and high availability.
+
+---
+
+# 14. Sharding (Concept)
+
+Sharding distributes data across multiple servers.
+
+```text
+Shard 1
+Shard 2
+Shard 3
+```
+
+Purpose:
+
+* Horizontal scaling
+* Increased storage capacity
+* Improved performance
+
+---
+
+## Interview Answer
+
+Sharding is MongoDB's horizontal scaling mechanism that distributes data across multiple servers to handle large datasets and heavy traffic.
+
+---
+
+# Blog App Schema Design
+
+## Users Collection
+
+```javascript
+{
+  _id,
+  name,
+  email,
+  password
+}
+```
+
+## Posts Collection
+
+```javascript
+{
+  _id,
+  title,
+  content,
+  author: ObjectId(User)
+}
+```
+
+## Comments Collection
+
+```javascript
+{
+  _id,
+  post: ObjectId(Post),
+  user: ObjectId(User),
+  text,
+  createdAt
+}
+```
+
+---
+
+## Design Justification
+
+### User → Posts
+
+Reference because:
+
+* One user can create many posts
+* Posts grow independently
+
+### Post → Comments
+
+Reference because:
+
+* Comments can become very large
+* Prevents document size issues
+* Better scalability
+
+---
+
+# Interview Questions
+
+1. What is the difference between a Document and a Collection?
+2. What is BSON and why does MongoDB use it instead of JSON?
+3. Explain the structure of an ObjectId.
+4. When would you embed a document instead of using a reference?
+5. How do you model a one-to-many relationship in MongoDB?
+6. What is Mongoose and why do we use it?
+7. What is the difference between a Schema and a Model?
+8. How do you add validation in a Mongoose schema?
+9. What is a Replica Set?
+10. What is the difference between MongoDB Atlas and Local MongoDB?
+
+---
+
+# Quick Revision
+
+* Collection = Group of documents
+* BSON = Binary JSON
+* ObjectId = 12-byte unique identifier
+* Embed for small, tightly related data
+* Reference for large, scalable relationships
+* Mongoose = ODM for MongoDB
+* Schema defines structure
+* Model performs CRUD operations
+* Validation uses required, default, min, max, enum
+* Replica Set = High availability
+* Atlas = Cloud MongoDB
