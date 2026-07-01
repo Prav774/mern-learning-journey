@@ -1,4 +1,4 @@
-# MERN Learning Journey 🚀
+# MERN Learning Journey
 
 ## About
 
